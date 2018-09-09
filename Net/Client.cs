@@ -6,18 +6,18 @@ using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
 
-namespace Chat.NET
+namespace Net
 {
-    class Client
+    public class Client
     {
-        private static Socket client { get; set; }
-        private static IPEndPoint IPHost { get; set; }
+        private Socket client { get; set; }
+        private IPEndPoint IPHost { get; set; }
 
-        private void createHost()
+        private void createHost(string IP)
         {
             client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             //IP Server
-            IPHost = new IPEndPoint(IPAddress.Parse("192.168.100.4"), 8082);
+            IPHost = new IPEndPoint(IPAddress.Parse(IP), 8082);
             connectHost();
         }
         public bool connectHost()
@@ -32,11 +32,10 @@ namespace Chat.NET
             {
                 return false;
             }
-            
+
         }
         private bool SendMsg(string msg)
         {
-            if (msg == "/exit") return false;
             byte[] msgInByte = Encoding.Default.GetBytes(msg);
             try
             {
@@ -45,13 +44,10 @@ namespace Chat.NET
             catch (SocketException)
             {
                 client.Close();
-                createHost();
                 return false;
             }
-
             return true;
         }
     }
-
-
 }
+

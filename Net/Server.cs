@@ -5,11 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading;
 
-namespace Chat.NET
+namespace Net
 {
-    class Server
+    public class Server
     {
         public bool ServerOn { get; set; } = false;
         private Socket client { get; set; }

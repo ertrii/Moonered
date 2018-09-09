@@ -12,7 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-
+using Chat;
 namespace Moonered
 {
     /// <summary>
@@ -23,6 +23,18 @@ namespace Moonered
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        private void lblClose_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            Close();
+        }
+
+        private void btn_Connect_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            MainChat chat = new MainChat("Erick", "192.168.100.4");
+            this.Hide();
+            chat.Show();
         }
     }
 }
