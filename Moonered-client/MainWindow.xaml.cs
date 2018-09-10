@@ -24,5 +24,15 @@ namespace Moonered_client
         {
             InitializeComponent();
         }
+
+        private void lblClose_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            Close();
+        }
+
+        private void btn_Connect_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+
+        }
     }
 }

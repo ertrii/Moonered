@@ -5,8 +5,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Moonered_client"
         mc:Ignorable="d"
-        Title="Moonered Client" Height="350" Width="250" WindowStyle="ToolWindow" ResizeMode="NoResize">
-    <Grid>
-        
+        Title="Moonered" Height="300" Width="200" WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
+    <Grid Background="#FFEEEEEE">
+        <Label x:Name="btn_Connect" Content="Connect" HorizontalAlignment="Left" Margin="35,201,0,0" VerticalAlignment="Top" Width="125" Background="#FF3C8065" Foreground="White" FontFamily="Open Sans SemiBold" Height="30" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Cursor="Hand" MouseDown="btn_Connect_MouseDown"/>
+        <TextBox x:Name="txtNameUser" HorizontalAlignment="Left" Height="26" Margin="24,129,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="151" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" BorderBrush="{x:Null}"/>
+        <Label x:Name="label" Content="Name:" HorizontalAlignment="Left" Margin="24,103,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="label1" Content="Moonered" HorizontalAlignment="Left" Margin="48,28,0,0" VerticalAlignment="Top" FontFamily="Roboto Black" FontSize="18" Foreground="#FF3C8065"/>
+        <Label x:Name="lbl_close" Content="close" HorizontalAlignment="Left" Margin="78,236,0,0" VerticalAlignment="Top" Foreground="#FF7C7C7C" MouseDown="lblClose_MouseDown"/>
+        <Label x:Name="label1_Copy" Content="client" HorizontalAlignment="Left" Margin="103,44,0,0" VerticalAlignment="Top" FontFamily="Roboto Light" FontSize="12" Foreground="#FF3C8065"/>
     </Grid>
 </Window>
