@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Chat;
 
 namespace Moonered_client
 {
@@ -32,6 +33,10 @@ namespace Moonered_client
 
         private void btn_Connect_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            Hide();
+            MainChat chat = new MainChat(txtNameUser.Text);
+            chat.createClient("192.168.100.4");
+            chat.ShowDialog();
 
         }
     }

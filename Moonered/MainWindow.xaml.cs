@@ -32,9 +32,10 @@ namespace Moonered
 
         private void btn_Connect_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            MainChat chat = new MainChat("Erick", "192.168.100.4");
+            MainChat chat = new MainChat(txtNameUser.Text);
             this.Hide();
-            chat.Show();
+            chat.createHost(txtIP.Text);
+            chat.ShowDialog();
         }
     }
 }

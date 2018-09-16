@@ -13,14 +13,14 @@ namespace Net
         private Socket client { get; set; }
         private IPEndPoint IPHost { get; set; }
 
-        private void createHost(string IP)
+        public void CreateHost(string IP)
         {
             client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             //IP Server
             IPHost = new IPEndPoint(IPAddress.Parse(IP), 8082);
-            connectHost();
+            //ConnectHost();
         }
-        public bool connectHost()
+        public bool ConnectHost()
         {
             try
             {
@@ -34,7 +34,8 @@ namespace Net
             }
 
         }
-        private bool SendMsg(string msg)
+
+        public bool SendMsg(string msg)
         {
             byte[] msgInByte = Encoding.Default.GetBytes(msg);
             try

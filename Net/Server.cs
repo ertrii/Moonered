@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 
 namespace Net
 {
@@ -33,11 +34,13 @@ namespace Net
 
             client = server.Accept();//waiting...
 
-            //System.Threading.Timer timer = new Timer(listen, 10, 1, 1000);
-
+            //ListenNow();
+            //System.Threading.Timer timer = new Timer( () => { Console.Write("fafs"); }, 10, 1, 1000);
+            
         }
 
-        public void Listen(object args)
+
+        public string ListenNow()
         {
             byte[] byteInMsg = new byte[255];
             try
@@ -46,11 +49,11 @@ namespace Net
 
                 Array.Resize(ref byteInMsg, length);
 
-                Console.WriteLine("<-- " + Encoding.Default.GetString(byteInMsg));
+                return Encoding.Default.GetString(byteInMsg);
             }
             catch (SocketException)
             {
-                Console.Write("f3");
+                return "error";
             }
         }
 

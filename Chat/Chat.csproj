@@ -97,10 +97,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Net\Net.csproj">
-      <Project>{9bc4f3f3-a917-4225-a9b2-7338602d7962}</Project>
-      <Name>Net</Name>
-    </ProjectReference>
+    <Folder Include="Interaction\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
