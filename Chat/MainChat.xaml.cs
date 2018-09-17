@@ -16,6 +16,7 @@ using System.Windows.Shapes;
 using System.Net;
 using System.Net.Sockets;
 using System.Windows.Threading;
+using System.IO;
 
 namespace Chat
 {
@@ -25,56 +26,104 @@ namespace Chat
     public partial class MainChat : Window
     {
         private string user { get; set; }
+        DispatcherTimer timer { get; set; }
         public MainChat(string user)
         {
             this.user = user;
+            timer = new DispatcherTimer();
+            timer.Interval = TimeSpan.FromSeconds(3);
             InitializeComponent();
          
         }
 
-        private HorizontalAlignment alignment { get; set; } = HorizontalAlignment.Left;
-        private bool isHost { get; set; }
-        private Socket host { get; set; }
-        private Socket client { get; set; }
-        private bool enabledSendMsg { get; set; } = true;
-
+        private bool isHost { get; set; } = false;
+        private TcpListener server { get; set; }
+        private TcpClient client { get; set; }
+        private StreamReader reader { get; set; }
+        private StreamWriter writer { get; set; }
+        private bool enabledSendMsg { get; set; } = false;        
+        //host
         public async void createHost(string IP)
         {
-            alignment = HorizontalAlignment.Left;
             isHost = true;
-            host = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            host.Bind(new IPEndPoint(IPAddress.Parse(IP), 8082));//assign
-            host.Listen(4);
-            sendNotice("Server On");
-
-
-            Socket clientMsg = await Task.Run( () => host.Accept());
-            sendNotice("User Connected");
-
-            receiveClient receiveC = new receiveClient( async (msg) =>
-            {
-                while (true)
-                {
-                    byte[] byteMsg = new byte[255];
-                    int length = await Task.Run(() => msg.Receive(byteMsg, 0, byteMsg.Length, 0));
-                    Array.Resize(ref byteMsg, length);
-                    sendMsg(Encoding.Default.GetString(byteMsg));
-                }
-            });
+            server = new TcpListener(new IPEndPoint(IPAddress.Parse(IP), 8082));
+            server.Start();
+            showNotice("Server On");
             
-            receiveC(clientMsg);
+            client = await Task.Run(() => server.AcceptTcpClient());
+            NetworkStream stream = client.GetStream();
+            reader = new StreamReader(stream);
+            writer = new StreamWriter(stream);
+            string nickClient = await Task.Run(() => reader.ReadLine());
+            enabledSendMsg = true;
+            showNotice(nickClient +" Conected.");
+
+            while (true)
+            {
+                string msg = await Task.Run(() =>
+                {
+                    try
+                    {
+                        return reader.ReadLine();
+                    }
+                    catch (IOException)
+                    {
+                        return "";
+                    }
+                });
+
+                if (msg == "")
+                {
+                    showNotice(nickClient + " Disconnected.");
+                    break;
+                }
+                showMsg($"{nickClient}: {msg}");
+            }
+            
         }
-        //private 
-        private delegate void receiveClient(Socket msg);
         
-        
-        public void createClient(string IP)
+        //client
+        public async void createClient(string IP)
         {
-            alignment = HorizontalAlignment.Right;
-            isHost = false;
-            client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            connectToHost();
+            client = new TcpClient();
+            client.Connect(IP, 8082);
+            if (client.Connected)
+            {
+                enabledSendMsg = true;
+                showNotice("Server Connected");
+                NetworkStream stream = client.GetStream();
+                reader = new StreamReader(stream);
+                writer = new StreamWriter(stream);
+                writer.WriteLine(user);
+                writer.Flush();
+
+                while (true) {
+                    string msg = await Task.Run(() => {
+                        try
+                        {
+                            return reader.ReadLine();
+                        }
+                        catch (IOException)
+                        {
+                            return "";
+                        }
+                    });
+                    if(msg == "")
+                    {
+                        showNotice("Server disconneted.");
+                        break;
+                    }
+                    showMsg(msg);
+                }
+            }
+            else
+            {
+                enabledSendMsg = false;
+            }
+            //client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            //connectToHost();
         }
+        /*
         private async void connectToHost()
         {
             await Task.Run(() =>
@@ -120,8 +169,8 @@ namespace Chat
             }
             
         }
-
-        private void sendNotice(string text)
+        */
+        private void showNotice(string text)
         {
             Label lb = new Label();
             lb.Foreground = Brushes.Gray;
@@ -131,15 +180,19 @@ namespace Chat
             messagePanel.Children.Add(lb);
         }
 
-        private void sendMsg(string text)
-        {            
-            if (!isHost) {                
-                byte[] msgByte = Encoding.Default.GetBytes(text);
-                client.Send(msgByte, 0, msgByte.Length, 0);
-            }
-            TextBlock textBlock = createTextBlock();
+        private void showMsg(string text)
+        {
+            TextBlock textBlock = createTextBlock(HorizontalAlignment.Right, "#2B3544");
             textBlock.Text = text;
             messagePanel.Children.Add(textBlock);
+        }
+        private void sendMsg(string text)
+        {
+            TextBlock textBlock = createTextBlock(HorizontalAlignment.Left, "#3C8065");
+            writer.WriteLine(text);
+            textBlock.Text = text;
+            messagePanel.Children.Add(textBlock);
+            writer.Flush();
             txtSend.Text = "";
         }
 
@@ -153,11 +206,11 @@ namespace Chat
             return thickness;
         }
         
-        private TextBlock createTextBlock()
+        private TextBlock createTextBlock(HorizontalAlignment alignment, string color)
         {
             TextBlock textBlock = new TextBlock();
             textBlock.HorizontalAlignment = alignment;
-            textBlock.Background = (Brush)new BrushConverter().ConvertFrom("#FF3C8065");
+            textBlock.Background = (Brush)new BrushConverter().ConvertFrom(color);
             textBlock.Foreground = Brushes.White;
             textBlock.Margin = spaceEl(5, 5);
             textBlock.Padding = spaceEl(10, 5, 10, 5);
