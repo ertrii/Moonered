@@ -25,68 +25,36 @@ namespace Moonered_client.net
     public partial class Chat_client : Window
     {
         private string user { get; set; }
-        DispatcherTimer timer { get; set; }
         public Chat_client(string user)
         {
-            this.user = user;
-            timer = new DispatcherTimer();
-            timer.Interval = TimeSpan.FromSeconds(3);
+            this.user = user;            
             InitializeComponent();
 
         }
 
-        private bool isHost { get; set; } = false;
-        private TcpListener server { get; set; }
         private TcpClient client { get; set; }
         private StreamReader reader { get; set; }
         private StreamWriter writer { get; set; }
         private bool enabledSendMsg { get; set; } = false;
-        //host
-        public async void createHost(string IP)
-        {
-            isHost = true;
-            server = new TcpListener(new IPEndPoint(IPAddress.Parse(IP), 8082));
-            server.Start();
-            showNotice("Server On");
-
-            client = await Task.Run(() => server.AcceptTcpClient());
-            NetworkStream stream = client.GetStream();
-            reader = new StreamReader(stream);
-            writer = new StreamWriter(stream);
-            string nickClient = await Task.Run(() => reader.ReadLine());
-            enabledSendMsg = true;
-            showNotice(nickClient + " Conected.");
-
-            while (true)
-            {
-                string msg = await Task.Run(() =>
-                {
-                    try
-                    {
-                        return reader.ReadLine();
-                    }
-                    catch (IOException)
-                    {
-                        return "";
-                    }
-                });
-
-                if (msg == "")
-                {
-                    showNotice(nickClient + " Disconnected.");
-                    break;
-                }
-                showMsg($"{nickClient}: {msg}");
-            }
-
-        }
-
+        
         //client
         public async void createClient(string IP)
         {
             client = new TcpClient();
-            client.Connect(IP, 8082);
-            if (client.Connected)
+            bool clientConnected = await Task.Run(() => {
+                try
+                {
+                    client.Connect(IP, 8082);
+                    return true;
+                }
+                catch (SocketException)
+                {
+                    enabledSendMsg = false;
+                    return false;
+                }
+            });
+            
+            if (client.Connected && clientConnected)
             {
                 enabledSendMsg = true;
                 showNotice("Server Connected");
@@ -111,6 +79,9 @@ namespace Moonered_client.net
                     if (msg == "")
                     {
                         showNotice("Server disconneted.");
+                        client.Close();
+                        enabledSendMsg = false;
+                        createClient(IP);
                         break;
                     }
                     showMsg(msg);
@@ -118,10 +89,27 @@ namespace Moonered_client.net
             }
             else
             {
-                enabledSendMsg = false;
+                int timeConnect = 10;
+                Label lb = new Label();
+                lb.Foreground = Brushes.Gray;
+                lb.Content = $"Fail, Connecting in {timeConnect} seconds...";
+                lb.HorizontalAlignment = HorizontalAlignment.Center;
+                messagePanel.Children.Add(lb);
+                DispatcherTimer timer = new DispatcherTimer();
+                timer.Interval = TimeSpan.FromSeconds(1);
+                timer.Tick += (object sender, EventArgs e) =>
+                {
+                    timeConnect--;
+                    this.Dispatcher.Invoke(() => lb.Content = $"Fail, Connecting in {timeConnect} seconds...");
+                    if (timeConnect == 0)
+                    {
+                        timer.Stop();
+                        createClient(IP);
+                        return;
+                    }                    
+                };
+                timer.Start();
             }
-            //client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            //connectToHost();
         }
 
         private void showNotice(string text)
@@ -142,6 +130,7 @@ namespace Moonered_client.net
         }
         private void sendMsg(string text)
         {
+            if (!enabledSendMsg) return;
             TextBlock textBlock = createTextBlock(HorizontalAlignment.Left, "#3C8065");
             writer.WriteLine(text);
             textBlock.Text = text;
@@ -185,6 +174,12 @@ namespace Moonered_client.net
             {
                 sendMsg(txtSend.Text);
             }
+        }
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            //this.C
+            App.Current.Shutdown();
         }
     }
 }

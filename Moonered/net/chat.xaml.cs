@@ -34,7 +34,6 @@ namespace Moonered.net
 
         }
 
-        private bool isHost { get; set; } = false;
         private TcpListener server { get; set; }
         private TcpClient client { get; set; }
         private StreamReader reader { get; set; }
@@ -43,7 +42,6 @@ namespace Moonered.net
         //host
         public async void createHost(string IP)
         {
-            isHost = true;
             server = new TcpListener(new IPEndPoint(IPAddress.Parse(IP), 8082));
             server.Start();
             showNotice("Server On");
@@ -79,49 +77,6 @@ namespace Moonered.net
             }
 
         }
-
-        //client
-        public async void createClient(string IP)
-        {
-            client = new TcpClient();
-            client.Connect(IP, 8082);
-            if (client.Connected)
-            {
-                enabledSendMsg = true;
-                showNotice("Server Connected");
-                NetworkStream stream = client.GetStream();
-                reader = new StreamReader(stream);
-                writer = new StreamWriter(stream);
-                writer.WriteLine(user);
-                writer.Flush();
-
-                while (true)
-                {
-                    string msg = await Task.Run(() => {
-                        try
-                        {
-                            return reader.ReadLine();
-                        }
-                        catch (IOException)
-                        {
-                            return "";
-                        }
-                    });
-                    if (msg == "")
-                    {
-                        showNotice("Server disconneted.");
-                        break;
-                    }
-                    showMsg(msg);
-                }
-            }
-            else
-            {
-                enabledSendMsg = false;
-            }
-            //client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            //connectToHost();
-        }
         private void showNotice(string text)
         {
             Label lb = new Label();
@@ -140,6 +95,7 @@ namespace Moonered.net
         }
         private void sendMsg(string text)
         {
+            if (!enabledSendMsg) return;
             TextBlock textBlock = createTextBlock(HorizontalAlignment.Left, "#3C8065");
             writer.WriteLine(text);
             textBlock.Text = text;

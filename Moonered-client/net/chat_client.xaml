@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Moonered_client.net"
         mc:Ignorable="d"
-       Title="Chat Client" Height="500" Width="300" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" WindowStyle="ToolWindow">
+       Title="Chat Client" Height="500" Width="300" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" WindowStyle="ToolWindow" Closed="Window_Closed">
     <Grid x:Name="container" HorizontalAlignment="Left" Height="480" VerticalAlignment="Top" Width="300" Margin="0,0,-6,-2">
         <Grid x:Name="containerMsg" HorizontalAlignment="Left" Height="426" VerticalAlignment="Top" Width="290" Background="#eee">
             <ScrollViewer HorizontalAlignment="Left" Height="416" Margin="0,10,0,0" VerticalAlignment="Top" Width="280" HorizontalScrollBarVisibility="Auto">
